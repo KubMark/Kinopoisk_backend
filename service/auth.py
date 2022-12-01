@@ -11,7 +11,7 @@ class AuthService:
     def __init__(self, user_service: UserService):
         self.user_service = user_service
 
-    def generate_tokens(self, username, password, is_refresh=False):
+    def generate_token(self, username, password, is_refresh=False):
         user = self.user_service.get_by_username(username)
 
         if user is None:
@@ -27,11 +27,11 @@ class AuthService:
         }
 
 
-        min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+        min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         data["exp"] = calendar.timegm(min30.timetuple())
         access_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-        days130 = datetime.datetime.utcnow() + datetime.timedelta(days=180)
+        days130 = datetime.datetime.utcnow() + datetime.timedelta(days=130)
         data["exp"] = calendar.timegm(days130.timetuple())
         refresh_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
         return {"access_token": access_token, "refresh_token": refresh_token}
@@ -44,4 +44,4 @@ class AuthService:
 
         if user is None:
             raise Exception()
-        return self.generate_tokens(username, user.password, is_refresh=True)
+        return self.generate_token(username, user.password, is_refresh=True)
